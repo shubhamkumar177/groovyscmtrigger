@@ -1,0 +1,33 @@
+Using a Jenkins Declarative Pipeline script, you can configure a job to poll an SVN repository URL every 10 minutes as follows:
+
+pipeline {
+    agent any
+    triggers {
+        pollSCM 'H/10 * * * *'
+    }
+    stages {
+        stage('checkout') {
+            steps {
+                checkout([
+                    $class: 'SubversionSCM', 
+                    additionalCredentials: [], 
+                    excludedCommitMessages: '', 
+                    excludedRegions: '', 
+                    excludedRevprop: '', 
+                    excludedUsers: '', 
+                    filterChangelog: false, 
+                    ignoreDirPropChanges: false, 
+                    includedRegions: '', 
+                    locations: [[
+                        credentialsId: 'mySvnCredentials', 
+                        depthOption: 'infinity',
+                        ignoreExternalsOption: true, 
+                        local: '.', 
+                        remote: 'http://example.com/svn/url/trunk']], 
+                    workspaceUpdater: [$class: 'CheckoutUpdater']
+                ])
+            }
+        }
+    }
+}
+The pollSCM trigger should automatically poll all SCM Repository URLs associated with your build, including URLs specified by checkout steps, the URL of your Declarative Pipeline script from SCM, and the URL of your Global Pipeline Libraries. If you truly want the pipeline to be run for every single revision however, you'll need to set up a post-commit hook instead.
